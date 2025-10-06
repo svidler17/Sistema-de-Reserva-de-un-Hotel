@@ -1,0 +1,46 @@
+class Cliente:
+    def __init__(self, nombre, identificacion):
+        self.nombre = nombre
+        self.identificacion = identificacion
+
+    def __str__(self):
+        return f"Cliente: {self.nombre} - ID: {self.identificacion}"
+
+
+class Pago:
+    def __init__(self, cliente, monto, metodo_pago):
+        self.cliente = cliente
+        self.monto = monto
+        self.metodo_pago = metodo_pago
+        self.estado = "Pendiente"  # Pendiente o Pagado
+
+    def procesar_pago(self):
+        if self.estado == "Pagado":
+            print("El pago ya fue realizado.")
+        else:
+            self.estado = "Pagado"
+            print(f"Pago procesado correctamente. Monto: ${self.monto} - Método: {self.metodo_pago}")
+
+    def mostrar_informacion(self):
+        print(f"Cliente: {self.cliente.nombre}")
+        print(f"Monto: ${self.monto}")
+        print(f"Método de pago: {self.metodo_pago}")
+        print(f"Estado del pago: {self.estado}")
+
+
+# Ejemplo de uso
+if __name__ == "__main__":
+    # Registrar cliente
+    cliente1 = Cliente("Charly Torres", "123456")
+
+    # Crear un pago asociado al cliente
+    pago1 = Pago(cliente1, 250000, "Tarjeta")
+
+    print("\n--- Información del pago ---")
+    pago1.mostrar_informacion()
+
+    print("\n--- Procesando pago ---")
+    pago1.procesar_pago()
+
+    print("\n--- Estado actualizado ---")
+    pago1.mostrar_informacion()
