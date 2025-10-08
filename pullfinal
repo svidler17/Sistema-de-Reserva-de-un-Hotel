@@ -1,0 +1,156 @@
+# =========================================================
+# git remote add origin Clase Cliente
+# =========================================================
+class Cliente:
+    def __init__(self, id_cliente, nombre):
+        self.id_cliente = id_cliente
+        self.nombre = nombre
+
+    def __str__(self):
+        return f"{self.nombre} (ID: {self.id_cliente})"
+
+
+# =========================================================
+#  Clase Habitación
+# =========================================================
+class Habitacion:
+    def __init__(self, numero, tipo, tarifa):
+        self.numero = numero
+        self.tipo = tipo
+        self.tarifa = tarifa
+        self.estado = "Disponible"
+        self.dias_estadia = 0
+        self.metodo_pago = None
+        self.total = 0
+
+    def calcular_total(self):
+        """Calcula el total con base en los días de estancia"""
+        if self.dias_estadia <= 0:
+            self.dias_estadia = 1
+        self.total = self.dias_estadia * self.tarifa
+        return self.total
+
+    def cambiar_estado(self, nuevo_estado):
+        """Cambia el estado de la habitación"""
+        if nuevo_estado not in ["Disponible", "Ocupada", "Mantenimiento"]:
+            print("Estado no válido.")
+        else:
+            self.estado = nuevo_estado
+            print(f"Estado actualizado a: {self.estado}")
+
+    def __str__(self):
+        return (f"Habitación {self.numero} ({self.tipo}) - {self.estado} | "
+                f"Días: {self.dias_estadia} | Total: ${self.total}")
+
+
+# =========================================================
+#  Clase Hotel
+# =========================================================
+class Hotel:
+    def __init__(self, nombre):
+        self.nombre = nombre
+        self.habitaciones = []
+
+    def agregar_habitacion(self, habitacion):
+        if any(h.numero == habitacion.numero for h in self.habitaciones):
+            print("Ya existe una habitación con ese número.")
+            return
+        self.habitaciones.append(habitacion)
+        print(f"Habitación registrada: {habitacion}")
+
+    def mostrar_habitaciones(self):
+        if not self.habitaciones:
+            print("\nNo hay habitaciones registradas.")
+            return
+        print(f"\n--- Habitaciones del Hotel {self.nombre} ---")
+        for hab in self.habitaciones:
+            print(hab)
+
+
+# =========================================================
+#  Clase Reserva
+# =========================================================
+class Reserva:
+    def __init__(self, id_reserva, cliente, habitacion, dias_estadia):
+        self.id_reserva = id_reserva
+        self.cliente = cliente
+        self.habitacion = habitacion
+        self.dias_estadia = dias_estadia
+        self.estado = "Activa"
+
+    def modificar_reserva(self, nuevos_dias):
+        if self.estado != "Activa":
+            print("No se puede modificar una reserva que no está activa.")
+            return
+        self.dias_estadia = nuevos_dias
+        print("Reserva modificada correctamente.")
+
+    def cancelar_reserva(self):
+        if self.estado == "Cancelada":
+            print("La reserva ya estaba cancelada.")
+        else:
+            self.estado = "Cancelada"
+            self.habitacion.cambiar_estado("Disponible")
+            print("Reserva cancelada correctamente.")
+
+    def __str__(self):
+        return (f"Reserva {self.id_reserva}: {self.cliente.nombre} - "
+                f"Habitación {self.habitacion.numero} ({self.dias_estadia} días) - Estado: {self.estado}")
+
+
+# =========================================================
+#  Clase Pago
+# =========================================================
+class Pago:
+    def __init__(self, cliente, monto, metodo_pago):
+        self.cliente = cliente
+        self.monto = monto
+        self.metodo_pago = metodo_pago
+        self.estado = "Pendiente"
+
+    def procesar_pago(self):
+        if self.estado == "Pagado":
+            print("El pago ya fue realizado.")
+        else:
+            self.estado = "Pagado"
+            print(f"Pago procesado correctamente. Monto: ${self.monto} - Método: {self.metodo_pago}")
+
+    def mostrar_informacion(self):
+        print(f"Cliente: {self.cliente.nombre}")
+        print(f"Monto: ${self.monto}")
+        print(f"Método de pago: {self.metodo_pago}")
+        print(f"Estado del pago: {self.estado}")
+
+
+# =========================================================
+#  Ejemplo de uso
+# =========================================================
+if __name__ == "__main__":
+    # Crear hotel y habitaciones
+    hotel = Hotel("Sol y Mar")
+    hab1 = Habitacion(101, "Individual", 80000)
+    hab2 = Habitacion(102, "Doble", 120000)
+    hotel.agregar_habitacion(hab1)
+    hotel.agregar_habitacion(hab2)
+
+    # Crear cliente
+    cliente1 = Cliente("C001", "Charly Torres")
+
+    # Crear reserva con 3 días de estancia
+    reserva1 = Reserva("R001", cliente1, hab1, 3)
+    print("\n", reserva1)
+
+    # Calcular total y procesar pago
+    hab1.dias_estadia = reserva1.dias_estadia
+    total = hab1.calcular_total()
+    print(f"\nTotal a pagar: ${total}")
+
+    pago1 = Pago(cliente1, total, "Tarjeta")
+    pago1.procesar_pago()
+
+    # Cambiar estado de habitación
+    hab1.cambiar_estado("Ocupada")
+
+    # Mostrar resumen
+    print("\n--- Información final ---")
+    hotel.mostrar_habitaciones()
