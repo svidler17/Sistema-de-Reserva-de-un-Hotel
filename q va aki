@@ -1,7 +1,0 @@
-clases (Reserva, GestorReservas, Cliente, Habitacion) para separar responsabilidades.
-dentro de cada clase (crear, modificar, cancelar, mostrar).
-composición :una reserva contiene un cliente y una habitación.
-saber cuándo una reserva está activa o cancelada.
-disponibilidad mediante comparación de fechas (sin que se crucen).
-interacción con otros módulos (clientes y habitaciones).
-menú por consola simple
