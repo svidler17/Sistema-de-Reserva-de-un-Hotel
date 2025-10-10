@@ -15,7 +15,7 @@ class Reserva:
             return
         self.dias_estadia = nuevos_dias
         self.habitacion.dias_estadia = nuevos_dias
-        print(f"Reserva modificada correctamente. Nueva estancia: {nuevos_dias} días.")
+        print(f"Reserva modificada correctamente. Nueva estadia: {nuevos_dias} días.")
 
     def cancelar_reserva(self):
         if self.estado == "Cancelada":
