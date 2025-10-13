@@ -1,17 +1,32 @@
-#clase de la habitacion
 # Clase Habitación
 class Habitacion:
+    TIPOS_VALIDOS = ["Individual", "Doble", "Suite", "Familiar"]  # tipos permitidos
+
     def __init__(self, numero, tipo):
         self.numero = numero
-        self.tipo = tipo
+        if self.validar_tipo(tipo):
+            self.tipo = tipo.capitalize()
+        else:
+            self.tipo = None  # si el tipo no es válido, se deja sin asignar
         self.estado = "Disponible"
         self.fecha_ingreso = None
         self.fecha_salida = None
         self.metodo_pago = None
         self.total = 0
 
+    def validar_tipo(self, tipo):
+       
+        if not isinstance(tipo, str):   # Valida que el tipo de habitación sea texto y esté en la lista permitida
+            print("El tipo de habitación debe ser texto (por ejemplo: 'Doble', 'Suite').")
+            return False
+        tipo = tipo.capitalize()
+        if tipo not in self.TIPOS_VALIDOS:
+            print(f"Tipo de habitación inválido. Debe ser uno de: {', '.join(self.TIPOS_VALIDOS)}.") # une los texto separados por coma
+            return False
+        return True
+
     def calcular_total(self, precio_por_dia):
-        """Calcula el total con base en los días de estancia"""
+        # Calcula el total con base en los días de estancia
         if self.fecha_ingreso and self.fecha_salida:
             dias = (self.fecha_salida - self.fecha_ingreso).days
             if dias <= 0:
@@ -21,7 +36,7 @@ class Habitacion:
         return 0
 
     def cambiar_estado(self, nuevo_estado):
-        """Cambia el estado de la habitación"""
+        # Cambia el estado de la habitación
         if nuevo_estado not in ["Disponible", "Ocupada", "Mantenimiento"]:
             print("Estado no válido.")
         else:
@@ -29,6 +44,8 @@ class Habitacion:
             print(f"Estado actualizado a: {self.estado}")
 
     def __str__(self):
+        if self.tipo is None:
+            return f"Habitación {self.numero} (Tipo no válido)"
         if self.estado == "Ocupada" and self.fecha_ingreso and self.fecha_salida:
             return (f"Habitación {self.numero} ({self.tipo}) - {self.estado} | "
                     f"Desde: {self.fecha_ingreso.date()} Hasta: {self.fecha_salida.date()} | "
@@ -37,14 +54,17 @@ class Habitacion:
             return f"Habitación {self.numero} ({self.tipo}) - {self.estado}"
 
 
-# Clase Hotel solo para habitaciones)
+# Clase Hotel (solo para habitaciones)
 class Hotel:
     def __init__(self, nombre):
         self.nombre = nombre
         self.habitaciones = []
 
     def agregar_habitacion(self, habitacion):
-        # Evitar que se repitan números de habitación
+        # Evita duplicar números de habitación
+        if habitacion.tipo is None:
+            print("No se puede registrar la habitación porque el tipo es inválido.")
+            return
         if any(h.numero == habitacion.numero for h in self.habitaciones):
             print("Ya existe una habitación con ese número.")
             return
@@ -52,10 +72,10 @@ class Hotel:
         print(f"Habitación registrada: {habitacion}")
 
     def mostrar_habitaciones(self):
+        # Muestra todas las habitaciones registradas
         if not self.habitaciones:
             print("\nNo hay habitaciones registradas.")
             return
-        print("\n--- Habitaciones ---")
+        print("\n===Habitaciones===")
         for hab in self.habitaciones:
             print(hab)
-       
