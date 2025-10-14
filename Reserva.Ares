@@ -5,15 +5,46 @@ class Cliente:
     def __init__(self, id_cliente, nombre):
         if not str(id_cliente).isdigit():
             raise ValueError("El ID del cliente debe contener solo números.")
-        
+
         if not nombre.strip():
             raise ValueError("El nombre no puede estar vacío.")
-        
+
         self.id_cliente = int(id_cliente)
         self.nombre = nombre.strip()
+        self.ventas_acumuladas = 0
+        self.historial_reservas = []
+        self.historial_pagos = []
+
+    def agregar_venta(self, monto, reserva):
+        self.ventas_acumuladas += monto
+        self.historial_reservas.append(reserva)
+        print(f"Reserva de habitación {reserva.habitacion.numero} registrada para {self.nombre}.")
+
+    def agregar_pago(self, pago):
+        self.historial_pagos.append(pago)
+        print(f"Pago procesado para {self.nombre}. Monto: ${pago.monto}")
+
+    def mostrar_historial(self):
+        print(f"\n--- Historial de {self.nombre} ---")
+
+        print("\nReservas realizadas:")
+        if not self.historial_reservas:
+            print("No tiene reservas registradas.")
+        else:
+            for reserva in self.historial_reservas:
+                print(f"Reserva ID: {reserva.id_reserva}, Habitación: {reserva.habitacion.numero}, Días: {reserva.dias_estadia}")
+
+        print("\nPagos realizados:")
+        if not self.historial_pagos:
+            print("No tiene pagos registrados.")
+        else:
+            for pago in self.historial_pagos:
+                print(f"Monto: ${pago.monto}, Método: {pago.metodo_pago}, Estado: {pago.estado}")
 
     def __str__(self):
-        return f"{self.nombre} (ID: {self.id_cliente})"
+        return f"{self.nombre} (ID: {self.id_cliente}) - Ventas acumuladas: ${self.ventas_acumuladas:.2f}"
+
+
 
 
 # Clase Habitación
