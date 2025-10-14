@@ -3,9 +3,6 @@ def menu():
     print("    Bienvenido al Sistema Hotelero")
     print("=========================================")
 
-    
-    nombre_hotel = input("Ingrese el nombre del hotel: ")
-    hotel = Hotel(nombre_hotel)
 
     clientes = []
     reservas = []
