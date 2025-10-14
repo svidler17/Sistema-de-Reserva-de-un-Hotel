@@ -169,30 +169,16 @@ def menu():
         print("\n=========================================")
         print(f" MENÚ PRINCIPAL HOTEL  ")
         print("=========================================")
-        print("1. Registrar nueva habitación")
-        print("2. Ver todas las habitaciones")
-        print("3. Registrar un cliente")
-        print("4. Crear una reserva")
-        print("5. Cancelar una reserva")
-        print("6. Procesar un pago")
-        print("7. Salir del sistema")
-        print("8. Ver historial de un cliente")
-        print("9. Mostrar todos los clientes")
+        print("1. Ver todas las habitaciones")
+        print("2. Registrar un cliente")
+        print("3. Crear una reserva")
+        print("4. Cancelar una reserva")
+        print("5. Procesar un pago")
+        print("6. Salir del sistema")
+        print("7. Ver historial de un cliente")
+        print("8. Mostrar todos los clientes")
 
         opcion = input("\nSeleccione una opción (1-9): ")
-
-        # 1. Registrar habitación
-        if opcion == "1":
-            print("\n--- REGISTRO DE HABITACIÓN ---")
-            try:
-                numero = int(input("Número de habitación: "))
-                tipo = input("Tipo (Individual / Doble / Suite): ")
-                tarifa = float(input("Tarifa por noche ($): "))
-                habitacion = Habitacion(numero, tipo, tarifa)
-                hotel.agregar_habitacion(habitacion)
-                print(f"Habitación {numero} registrada correctamente.")
-            except ValueError:
-                print("Error: Por favor, ingrese datos válidos.")
 
 
         elif opcion == "2":
@@ -318,3 +304,4 @@ def menu():
 # =========================================================
 if __name__ == "__main__":
     menu()
+
