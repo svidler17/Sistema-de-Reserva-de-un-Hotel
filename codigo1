@@ -43,10 +43,10 @@ class Pago:
             cambio = self.monto - saldo
             self.reserva.registrar_pago(saldo)
             self.estado = "Pagado"
-            print(f" Pago completado. Se devolverán ${cambio:.2f} de cambio.")
+            print(f" Pago completado. Se devolverán ${int(cambio) if cambio.is_integer() else cambio} de cambio.")
         else:
             self.reserva.registrar_pago(self.monto)
             restante = self.reserva.saldo_pendiente()
-            print(f" Pago incompleto. Faltan ${restante:.2f} para completar el pago.")
+            print(f" Pago incompleto. Faltan ${int(restante) if restante.is_integer() else restante} para completar el pago.")
 
         return self.estado
