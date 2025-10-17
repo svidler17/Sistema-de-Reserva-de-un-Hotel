@@ -1,32 +1,48 @@
+
 class Cliente:
-    def __init__(self, nombre, identificacion):
+    def __init__(self, id_cliente, nombre):
+        self.id_cliente = id_cliente
         self.nombre = nombre
-        self.identificacion = identificacion
+        self.historial = []
+
+    def agregar_evento_historial(self, evento):
+        self.historial.append(evento)
+
+    def mostrar_historial(self):
+        if not self.historial:
+            print(f"No hay historial para {self.nombre}.")
+        else:
+            print(f"\n--- Historial de {self.nombre} ---")
+            for i, evento in enumerate(self.historial, 1):
+                print(f"{i}. {evento}")
 
     def __str__(self):
-        return f"Cliente: {self.nombre} - ID: {self.identificacion}"
+        return f"{self.nombre} (CI: {self.id_cliente})"
 
 
 class Pago:
-    def __init__(self, cliente, monto, metodo_pago):
-        self.cliente = cliente
+    def __init__(self, reserva, monto, metodo_pago):
+        self.reserva = reserva
         self.monto = monto
         self.metodo_pago = metodo_pago
-        self.estado = "Pendiente"  # Pendiente o Pagado
+        self.estado = "Pendiente"
 
     def procesar_pago(self):
-        if self.estado == "Pagado":
-            print("El pago ya fue realizado.")
-        else:
+        saldo = self.reserva.saldo_pendiente()
+        if self.monto == saldo:
+            self.reserva.registrar_pago(self.monto)
             self.estado = "Pagado"
-            print(f"Pago procesado correctamente. Monto: ${self.monto} - Método: {self.metodo_pago}")
-
-    def mostrar_informacion(self):
-        print(f"Cliente: {self.cliente.nombre}")
-        print(f"Monto: ${self.monto}")
-        print(f"Método de pago: {self.metodo_pago}")
-        print(f"Estado del pago: {self.estado}")
-
+            print("Pago completado correctamente.")
+        elif self.monto > saldo:
+            cambio = self.monto - saldo
+            self.reserva.registrar_pago(saldo)
+            self.estado = "Pagado"
+            print(f"Pago completado. Cambio: ${int(cambio) if cambio.is_integer() else cambio}.")
+        else:
+            self.reserva.registrar_pago(self.monto)
+            restante = self.reserva.saldo_pendiente()
+            print(f"Pago incompleto. Faltan ${int(restante) if restante.is_integer() else restante}.")
+        return self.estado
 
 # Ejemplo de uso
 if __name__ == "__main__":
