@@ -1,6 +1,6 @@
-
-# CLASES PRINCIPALES
-
+# ==========================================
+# SISTEMA HOTELERO LA VELARIA - COMPLETO
+# ==========================================
 
 class Cliente:
     def __init__(self, id_cliente, nombre):
@@ -31,8 +31,11 @@ class Habitacion:
         self.estado = "Disponible"
 
     def cambiar_estado(self, nuevo_estado):
-        if nuevo_estado in ["Disponible", "Ocupada"]:
+        estados_validos = ["Disponible", "Ocupada", "No disponible", "Mantenimiento"]
+        if nuevo_estado in estados_validos:
             self.estado = nuevo_estado
+        else:
+            print("Estado no válido. Intente de nuevo.")
 
     def __str__(self):
         return f"Habitación {self.numero} ({self.tipo}) - {self.estado} | Tarifa: ${self.tarifa}"
@@ -46,18 +49,37 @@ class Hotel:
     def agregar_habitacion(self, habitacion):
         self.habitaciones.append(habitacion)
 
+    def buscar_habitacion(self, numero):
+        return next((h for h in self.habitaciones if h.numero == numero), None)
+
     def mostrar_habitaciones(self):
         if not self.habitaciones:
             print("No hay habitaciones registradas.")
             return
+
         print(f"\n--- Habitaciones disponibles en {self.nombre} ---")
-        tipos = ["Individual", "Doble", "Suite"]
-        for tipo in tipos:
-            print(f"\n>> Habitaciones {tipo}s:")
-            for h in self.habitaciones:
-                if h.tipo == tipo:
-                    print(h)
-            print("\n--------------------------------")
+
+        print("\n>> Habitaciones Individuales:")
+        for h in self.habitaciones:
+            if h.tipo == "Individual":
+                print(h)
+
+        print("\n--------------------------------")
+
+        print("\n>> Habitaciones Dobles:")
+        for h in self.habitaciones:
+            if h.tipo == "Doble":
+                print(h)
+
+        print("\n--------------------------------")
+
+        print("\n>> Habitaciones Suite:")
+        for h in self.habitaciones:
+            if h.tipo == "Suite":
+                print(h)
+
+    def habitaciones_disponibles(self):
+        return [h for h in self.habitaciones if h.estado == "Disponible"]
 
 
 class Reserva:
@@ -82,7 +104,6 @@ class Reserva:
         return self.total - self.pagado
 
     def __str__(self):
-        #  Quitar decimales si el número es entero
         total = int(self.total) if self.total.is_integer() else self.total
         pagado = int(self.pagado) if self.pagado.is_integer() else self.pagado
         return (f"Reserva {self.id_reserva}: {self.cliente.nombre} - "
@@ -102,48 +123,87 @@ class Pago:
         if self.monto == saldo:
             self.reserva.registrar_pago(self.monto)
             self.estado = "Pagado"
-            print(" Pago completado correctamente.")
+            print("Pago completado correctamente.")
         elif self.monto > saldo:
             cambio = self.monto - saldo
             self.reserva.registrar_pago(saldo)
             self.estado = "Pagado"
-            print(f" Pago completado. Se devolverán ${int(cambio) if cambio.is_integer() else cambio} de cambio.")
+            print(f"Pago completado. Cambio: ${int(cambio) if cambio.is_integer() else cambio}.")
         else:
             self.reserva.registrar_pago(self.monto)
             restante = self.reserva.saldo_pendiente()
-            print(f" Pago incompleto. Faltan ${int(restante) if restante.is_integer() else restante} para completar el pago.")
-
+            print(f"Pago incompleto. Faltan ${int(restante) if restante.is_integer() else restante}.")
         return self.estado
 
 
-
-# VARIABLES GLOBALES
-
-clientes_global = []
-
-
-# MENÚ CLIENTE
-
-def menu_cliente(cliente):
-    print(f"\nBienvenido, {cliente.nombre} (CI: {cliente.id_cliente})")
-    hotel = Hotel("Hotel La Velaria")
-    hotel.agregar_habitacion(Habitacion(101, "Individual", 100.00))
-    hotel.agregar_habitacion(Habitacion(102, "Individual", 100.00))
-    hotel.agregar_habitacion(Habitacion(201, "Doble", 150.00))
-    hotel.agregar_habitacion(Habitacion(202, "Doble", 150.00))
-    hotel.agregar_habitacion(Habitacion(301, "Suite", 300.00))
-    hotel.agregar_habitacion(Habitacion(302, "Suite", 300.00))
-
-    reservas = []
-
+# ==========================================
+# FUNCIONES DE VALIDACIÓN
+# ==========================================
+def validar_nombre():
     while True:
-        print("\n--- MENÚ CLIENTE ---")
-        print("1. Ver habitaciones disponibles")
-        print("2. Crear reserva")
-        print("3. Cancelar reserva")
-        print("4. Procesar pago")
-        print("5. Ver mi historial")
-        print("6. Salir")
+        nombre = input("Ingrese su nombre: ").strip()
+        if nombre.replace(" ", "").isalpha():
+            return nombre
+        else:
+            print(" Error: el nombre solo debe contener letras y espacios. Intente de nuevo.")
+
+
+def validar_cedula():
+    while True:
+        cedula = input("Ingrese su número de cédula: ").strip()
+        if cedula.isdigit():
+            return cedula
+        else:
+            print(" Error: la cédula solo debe contener números. Intente de nuevo.")
+
+
+# ==========================================
+# VARIABLES GLOBALES
+# ==========================================
+clientes_global = []
+reservas_global = []
+hotel = Hotel("Hotel La Velaria")
+
+# Pre-cargar habitaciones (3 de cada tipo)
+hotel.agregar_habitacion(Habitacion(101, "Individual", 100.00))
+hotel.agregar_habitacion(Habitacion(102, "Individual", 100.00))
+hotel.agregar_habitacion(Habitacion(103, "Individual", 100.00))
+hotel.agregar_habitacion(Habitacion(201, "Doble", 150.00))
+hotel.agregar_habitacion(Habitacion(202, "Doble", 150.00))
+hotel.agregar_habitacion(Habitacion(203, "Doble", 150.00))
+hotel.agregar_habitacion(Habitacion(301, "Suite", 300.00))
+hotel.agregar_habitacion(Habitacion(302, "Suite", 300.00))
+hotel.agregar_habitacion(Habitacion(303, "Suite", 300.00))
+
+# Marcar algunas habitaciones como ocupadas
+for h in hotel.habitaciones:
+    if h.numero in [101, 102, 103, 201]:
+        h.cambiar_estado("Ocupada")
+
+# Clientes precargados
+cliente1 = Cliente("30351393", "Jethzibel Rodriguez")
+cliente2 = Cliente("3133421033", "Javier Barreto")
+cliente3 = Cliente("3212591279", "Charly Torres")
+cliente4 = Cliente("3144758838", "Mateo Rivera")
+
+clientes_global.extend([cliente1, cliente2, cliente3, cliente4])
+
+
+# ==========================================
+# MENÚ RECEPCIONISTA
+# ==========================================
+def menu_recepcionista():
+    while True:
+        print("\n===== MENÚ RECEPCIONISTA =====")
+        print("1. Ver habitaciones")
+        print("2. Registrar cliente")
+        print("3. Crear reserva")
+        print("4. Cancelar pago")
+        print("5. Cancelar reserva")
+        print("6. Actualizar o modificar habitación")
+        print("7. Ver historial de un cliente")
+        print("8. Cambiar estado de habitaciones")
+        print("9. Salir")
 
         opcion = input("Seleccione una opción: ")
 
@@ -151,66 +211,166 @@ def menu_cliente(cliente):
             hotel.mostrar_habitaciones()
 
         elif opcion == "2":
+            nombre = validar_nombre()
+            ci = validar_cedula()
+            nuevo = Cliente(ci, nombre)
+            clientes_global.append(nuevo)
+            print("Cliente registrado exitosamente.")
+
+        elif opcion == "3":
+            ci = validar_cedula()
+            cliente = next((c for c in clientes_global if c.id_cliente == ci), None)
+            if not cliente:
+                print("Cliente no encontrado.")
+                continue
+            hotel.mostrar_habitaciones()
+            num = int(input("Número de habitación: "))
+            hab = hotel.buscar_habitacion(num)
+            if not hab or hab.estado != "Disponible":
+                print("Habitación no disponible.")
+                continue
+            dias = int(input("Días de estadía: "))
+            id_reserva = input("ID de reserva: ")
+            reserva = Reserva(id_reserva, cliente, hab, dias)
+            reservas_global.append(reserva)
+            hab.cambiar_estado("Ocupada")
+            cliente.agregar_evento_historial(f"Reserva {id_reserva} creada en habitación {num}.")
+            print("Reserva creada correctamente.")
+
+        elif opcion == "4":
+            id_res = input("ID de la reserva: ")
+            reserva = next((r for r in reservas_global if r.id_reserva == id_res), None)
+            if reserva:
+                reserva.pagado = 0
+                print("Pago cancelado correctamente.")
+            else:
+                print("Reserva no encontrada.")
+
+        elif opcion == "5":
+            id_res = input("ID de la reserva: ")
+            reserva = next((r for r in reservas_global if r.id_reserva == id_res), None)
+            if reserva:
+                reserva.cancelar()
+                print("Reserva cancelada con éxito.")
+            else:
+                print("Reserva no encontrada.")
+
+        elif opcion == "6":
+            num = int(input("Número de habitación a modificar: "))
+            hab = hotel.buscar_habitacion(num)
+            if hab:
+                nuevo_tipo = input(f"Nuevo tipo ({hab.tipo}): ") or hab.tipo
+                nueva_tarifa = float(input(f"Nueva tarifa ({hab.tarifa}): ") or hab.tarifa)
+                hab.tipo = nuevo_tipo
+                hab.tarifa = nueva_tarifa
+                print("Habitación modificada correctamente.")
+            else:
+                print("Habitación no encontrada.")
+
+        elif opcion == "7":
+            ci = validar_cedula()
+            cliente = next((c for c in clientes_global if c.id_cliente == ci), None)
+            if cliente:
+                cliente.mostrar_historial()
+            else:
+                print("Cliente no encontrado.")
+
+        elif opcion == "8":
+            num = int(input("Número de habitación: "))
+            hab = hotel.buscar_habitacion(num)
+            if hab:
+                print("Estados válidos: Disponible / Ocupada / No disponible / Mantenimiento")
+                nuevo_estado = input("Nuevo estado: ")
+                hab.cambiar_estado(nuevo_estado)
+                print(f"Estado de habitación {num} actualizado a {nuevo_estado}.")
+            else:
+                print("Habitación no encontrada.")
+
+        elif opcion == "9":
+            print(" Saliendo del sistema de recepcionista...")
+            break
+
+        else:
+            print("Opción inválida. Intente nuevamente.")
+
+
+# ==========================================
+# MENÚ CLIENTE
+# ==========================================
+def menu_cliente(cliente):
+    while True:
+        print(f"\n===== MENÚ CLIENTE ({cliente.nombre}) =====")
+        print("1. Ver habitaciones disponibles")
+        print("2. Crear reserva")
+        print("3. Cancelar reserva")
+        print("4. Procesar pago")
+        print("5. Actualizar o modificar mi reserva")
+        print("6. Ver mi historial")
+        print("7. Salir")
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            disponibles = hotel.habitaciones_disponibles()
+            if not disponibles:
+                print("No hay habitaciones disponibles.")
+            else:
+                for h in disponibles:
+                    print(h)
+
+        elif opcion == "2":
             id_reserva = input("ID de la reserva: ")
             hotel.mostrar_habitaciones()
             num = int(input("Número de habitación: "))
-            habitacion = next((h for h in hotel.habitaciones if h.numero == num and h.estado == "Disponible"), None)
-            if not habitacion:
+            hab = hotel.buscar_habitacion(num)
+            if not hab or hab.estado != "Disponible":
                 print("Habitación no disponible.")
                 continue
-            dias = int(input("Número de días de estadía: "))
-            reserva = Reserva(id_reserva, cliente, habitacion, dias)
-            reservas.append(reserva)
-            habitacion.cambiar_estado("Ocupada")
-
-            total = int(reserva.total) if reserva.total.is_integer() else reserva.total
-            cliente.agregar_evento_historial(f"Reserva {id_reserva} creada para habitación {num} por {dias} días. Total: ${total}")
-            print(f" Reserva creada exitosamente. Total a pagar: ${total}")
+            dias = int(input("Días de estadía: "))
+            reserva = Reserva(id_reserva, cliente, hab, dias)
+            reservas_global.append(reserva)
+            hab.cambiar_estado("Ocupada")
+            cliente.agregar_evento_historial(f"Reserva {id_reserva} creada.")
+            print("Reserva creada correctamente.")
 
         elif opcion == "3":
             id_reserva = input("ID de la reserva a cancelar: ")
-            reserva = next((r for r in reservas if r.id_reserva == id_reserva), None)
-            if not reserva:
-                print("Reserva no encontrada.")
-            else:
+            reserva = next((r for r in reservas_global if r.id_reserva == id_reserva and r.cliente == cliente), None)
+            if reserva:
                 reserva.cancelar()
                 cliente.agregar_evento_historial(f"Reserva {id_reserva} cancelada.")
-                print("Reserva cancelada correctamente.")
+                print("Reserva cancelada.")
+            else:
+                print("Reserva no encontrada.")
 
         elif opcion == "4":
-            activas = [r for r in reservas if r.estado == "Activa" and r.saldo_pendiente() > 0]
-            if not activas:
-                print(" No tiene reservas activas o pendientes de pago.")
-                continue
-
-            print("\n--- Reservas pendientes ---")
-            for r in activas:
-                print(r)
-
-            id_reserva = input("Ingrese el ID de la reserva que desea pagar: ")
-            reserva = next((r for r in activas if r.id_reserva == id_reserva), None)
-
+            id_reserva = input("ID de la reserva a pagar: ")
+            reserva = next((r for r in reservas_global if r.id_reserva == id_reserva and r.cliente == cliente), None)
             if not reserva:
-                print("Reserva no encontrada o ya está pagada.")
+                print("Reserva no encontrada.")
                 continue
-
-            total = int(reserva.total) if reserva.total.is_integer() else reserva.total
-            pagado = int(reserva.pagado) if reserva.pagado.is_integer() else reserva.pagado
-            pendiente = int(reserva.saldo_pendiente()) if reserva.saldo_pendiente().is_integer() else reserva.saldo_pendiente()
-
-            print(f"\nTotal a pagar: ${total} | Pagado: ${pagado} | Pendiente: ${pendiente}")
-            monto = float(input("Ingrese el monto que desea pagar: "))
+            monto = float(input("Monto a pagar: "))
             metodo = input("Método de pago (Efectivo/Tarjeta): ")
             pago = Pago(reserva, monto, metodo)
-            resultado = pago.procesar_pago()
-
-            cliente.agregar_evento_historial(f"Pago de ${monto} realizado para reserva {reserva.id_reserva} ({resultado}).")
+            pago.procesar_pago()
+            cliente.agregar_evento_historial(f"Pago de ${monto} realizado para reserva {id_reserva}.")
 
         elif opcion == "5":
-            cliente.mostrar_historial()
+            id_reserva = input("ID de la reserva a modificar: ")
+            reserva = next((r for r in reservas_global if r.id_reserva == id_reserva and r.cliente == cliente), None)
+            if reserva:
+                nuevos_dias = int(input(f"Nuevos días de estadía ({reserva.dias_estadia}): ") or reserva.dias_estadia)
+                reserva.dias_estadia = nuevos_dias
+                reserva.total = reserva.habitacion.tarifa * nuevos_dias
+                print(" Reserva actualizada correctamente.")
+            else:
+                print("Reserva no encontrada.")
 
         elif opcion == "6":
-            print("Gracias por usar el sistema. Hasta luego.")
+            cliente.mostrar_historial()
+
+        elif opcion == "7":
+            print(" Gracias por usar el sistema. Hasta luego.")
             break
 
         else:
@@ -225,26 +385,21 @@ def login():
     print(" Bienvenido al Sistema Hotelero La Velaria")
     print("=========================================")
 
-    nombre = input("Ingrese su nombre: ")
-    cedula = input("Ingrese su número de cédula: ")
-    clave = input("Ingrese su contraseña (deje en blanco si es cliente): ")
+    nombre = validar_nombre()
+    cedula = validar_cedula()
+    clave = input("Ingrese su contraseña (deje vacío si es cliente): ")
 
     if clave == "1234":
-        print(f"\n Acceso concedido, {nombre}. Rol: Recepcionista | CI: {cedula}")
-        return
-
-    cliente_existente = next((c for c in clientes_global if c.id_cliente == cedula), None)
-    if cliente_existente:
-        print(f"\n Bienvenido nuevamente, {cliente_existente.nombre}.")
-        cliente_existente.agregar_evento_historial("Inicio de sesión en el sistema.")
-        menu_cliente(cliente_existente)
+        print(f"\nAcceso concedido, {nombre}. Rol: Recepcionista")
+        menu_recepcionista()
     else:
-        print("\n Cliente nuevo detectado.")
-        nuevo = Cliente(cedula, nombre)
-        nuevo.agregar_evento_historial("Cliente registrado en el sistema.")
-        clientes_global.append(nuevo)
-        print(f"Cliente {nombre} registrado correctamente.")
-        menu_cliente(nuevo)
+        cliente = next((c for c in clientes_global if c.id_cliente == cedula), None)
+        if not cliente:
+            cliente = Cliente(cedula, nombre)
+            clientes_global.append(cliente)
+            cliente.agregar_evento_historial("Cliente registrado.")
+        print(f"\nBienvenido, {cliente.nombre}. Rol: Cliente")
+        menu_cliente(cliente)
 
 
 # ==========================================
@@ -252,4 +407,3 @@ def login():
 # ==========================================
 if __name__ == "__main__":
     login()
-
