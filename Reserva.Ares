@@ -237,14 +237,17 @@ def menu_recepcionista():
             cliente.agregar_evento_historial(f"Reserva {id_reserva} creada en habitación {num}.")
             print("Reserva creada correctamente.")
 
-        elif opcion == "4":
-            id_res = input("ID de la reserva: ")
-            reserva = next((r for r in reservas_global if r.id_reserva == id_res), None)
-            if reserva:
-                reserva.pagado = 0
-                print("Pago cancelado correctamente.")
-            else:
+       elif opcion == "4":
+            id_reserva = input("ID de la reserva a pagar: ")
+            reserva = next((r for r in reservas_global if r.id_reserva == id_reserva and r.cliente == cliente), None)
+            if not reserva:
                 print("Reserva no encontrada.")
+                continue
+            monto = float(input("Monto a pagar: "))
+            metodo = input("Método de pago (Efectivo/Tarjeta): ")
+            pago = Pago(reserva, monto, metodo)
+            pago.procesar_pago()
+            cliente.agregar_evento_historial(f"Pago de ${monto} realizado para reserva {id_reserva}.")
 
         elif opcion == "5":
             id_res = input("ID de la reserva: ")
